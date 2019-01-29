@@ -1,0 +1,56 @@
+* {
+  padding: 0;
+  margin: 0;
+  font: 8px "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+html, body {
+  background-color: #1f363d;
+}
+
+.grid {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+}
+
+.cell {
+  position: relative;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  float: left;
+  margin: 1px;
+  height: calc(2vh - 2px);
+  width: calc(2vw - 2px);
+  font-weight: bold;
+  text-align: center;
+  border: 0px solid #090909;
+  border-radius: 0.5vh;
+  background-color: #4f6272;
+  color: #bac1b8;
+
+  -webkit-transition: background-color 1000ms linear;
+  -ms-transition: background-color 1000ms linear;
+  transition: background-color 1000ms linear;
+}
+
+.cell:hover {
+  border: 3px solid #ff715b;
+}
+
+.cell:active {
+  background-color: #f9cb40;
+}
+
+.cell-activated {
+  background-color: #f9cb40;
+  color: #363537;
+}
+
+.cell-reset {
+  background-color: #bced09;
+}
