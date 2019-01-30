@@ -24,8 +24,8 @@ html, body {
   -webkit-box-sizing: border-box;
   float: left;
   margin: 1px;
-  height: calc(5vh - 2px);
-  width: calc(5% - 2px);
+  height: calc(2vh - 2px);
+  width: calc(2% - 2px);
   font-weight: bold;
   text-align: center;
   border: 0px solid #090909;

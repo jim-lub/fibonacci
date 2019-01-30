@@ -43,8 +43,7 @@ class Grid extends React.Component {
     return cells;
   }
 
-  componentDidUpdate() {
-  }
+  componentDidUpdate() {}
 
   handleClick(cell) {
     this.removeActiveClassFromCells();
@@ -53,7 +52,7 @@ class Grid extends React.Component {
   }
 
   removeActiveClassFromCells() {
-    const cellsArr =this.state.cells.slice();
+    const cellsArr = [...this.state.cells];
 
     this.lastActiveCells.forEach(cell => {
       cellsArr[cell.index].cssClass = "";
@@ -65,10 +64,10 @@ class Grid extends React.Component {
   }
 
   /*
-  * Incrementing rows and columns
+  * Incrementing values on rows and columns
   */
   incrementRowAndColumn({row, col}) {
-    const cellsArr = this.state.cells.slice();
+    const cellsArr = [...this.state.cells];
 
     const cellsToIncrement = this.removeDuplicatesFromArray([...this.getIndexFromRow(row), ...this.getIndexFromColumn(col)]);
 
@@ -97,11 +96,18 @@ class Grid extends React.Component {
     let completedSequences = [];
 
     this.lastActiveCells.forEach(cur => {
-      let cell = cellsArr[cur.index];
 
-      completedSequences = [...completedSequences,
-                            ...this.findHorizontalSequences(cell),
-                            ...this.findVerticalSequences(cell)];
+      let horizontal = [...this.step('right', cur.index, cellsArr),
+                        ...this.step('left', cur.index, cellsArr)];
+
+      let vertical = [...this.step('down', cur.index, cellsArr),
+                        ...this.step('up', cur.index, cellsArr)];
+
+      vertical = this.removeDuplicatesFromArray(vertical);
+      horizontal = this.removeDuplicatesFromArray(horizontal);
+
+      if (horizontal.length >= 5) completedSequences = [...completedSequences, ...horizontal];
+      if (vertical.length >= 5) completedSequences = [...completedSequences, ...vertical];
     });
 
     this.removeDuplicatesFromArray(completedSequences)
@@ -110,74 +116,71 @@ class Grid extends React.Component {
 
           cell.value = 0;
           cell.cssClass = "cell-reset";
-        })
+        });
   }
 
-  findHorizontalSequences({index}) {
-    const cellsArr = [...this.state.cells];
-    let sequence1 = [], sequence2 = [];
-
-    this.findHorizontalSequences_loop('left', index, cellsArr, sequence1);
-    this.findHorizontalSequences_loop('right', index, cellsArr, sequence2);
-
-    let sequenceArr = this.removeDuplicatesFromArray([index, ...sequence1, ...sequence2]);
-
-    return (sequenceArr.length >= 5) ? sequenceArr : [];
-  }
-
-  findHorizontalSequences_loop(direction, index, cellsArr, sequence) {
-    let directionModifier = (direction === 'right') ? 1 : -1;
+  step(dir, index, cellsArr) {
+    let dirModifier = (dir === 'right' || dir === 'down') ? 1 : -1;
 
     let cur = cellsArr[index];
-    let next = cellsArr[index + (1 * directionModifier)];
-    let subsequent = cellsArr[index + (2 * directionModifier)];
+    let next = this.getNextCell(dir, index, cellsArr);
+    let subsequent = this.getSubsequentCell(dir, index, cellsArr);
 
-    if (!cur || !next || !subsequent) return; // check for existence
-    if (cur.value === 0 || next.value === 0 || subsequent.value === 0) return; // check if has a value
-    if (cur.row !== next.row || cur.row !== subsequent.row) return; // check if on same row
+    if (!cur || !next || !subsequent) return [...[]];
 
-    if (cur.value + (next.value * directionModifier) === subsequent.value) {
-      sequence.push(cur.index, next.index, subsequent.index);
-
-      this.findHorizontalSequences_loop(direction, index + (1 * directionModifier), cellsArr, sequence);
+    if (cur.value + (next.value * dirModifier) === subsequent.value) {
+      return [
+        cur.index, next.index, subsequent.index,
+        ...this.step(dir, next.index, cellsArr)
+      ]
     }
 
-    return sequence;
+    return [...[]]
   }
 
-  findVerticalSequences({index}) {
-    const cellsArr = [...this.state.cells];
-    let sequence1 = [], sequence2 = [];
+  getNextCell(dir, index, cellsArr) {
+    let next;
 
-    this.findVerticalSequences_loop('up', index, cellsArr, sequence1);
-    this.findVerticalSequences_loop('down', index, cellsArr, sequence2);
-
-    let sequenceArr = this.removeDuplicatesFromArray([index, ...sequence1, ...sequence2]);
-
-    return (sequenceArr.length >= 5) ? sequenceArr : [];
-  }
-
-  findVerticalSequences_loop(direction, index, cellsArr, sequence) {
-    let directionModifier = (direction === 'down') ? 1 : -1;
-    let columns = this.state.cols;
-
-    let cur = cellsArr[index];
-    let next = cellsArr[index + (columns * directionModifier)];
-    let subsequent = cellsArr[index + ((columns * 2) * directionModifier)];
-
-    if (!cur || !next || !subsequent) return; // check for existence
-    if (cur.value === 0 || next.value === 0 || subsequent.value === 0) return; // check if has a value
-    if (cur.col !== next.col || cur.col !== subsequent.col) return; // check if on same column
-
-    if (cur.value + (next.value * directionModifier) === subsequent.value) {
-      sequence.push(cur.index, next.index, subsequent.index);
-
-      this.findVerticalSequences_loop(direction, index + (columns * directionModifier), cellsArr, sequence);
+    switch (dir) {
+      case 'right':
+        next = cellsArr[index + 1];
+        break;
+      case 'left':
+        next = cellsArr[index - 1];
+        break;
+      case 'down':
+        next = cellsArr[index + this.state.cols];
+        break;
+      case 'up':
+        next = cellsArr[index - this.state.cols];
+        break;
+      default: next = false;
     }
 
-    return sequence;
+    return (!next || next.value === 0) ? false : next;
   }
 
+  getSubsequentCell(dir, index, cellsArr) {
+    let subsequent;
+
+    switch (dir) {
+      case 'right':
+        subsequent = cellsArr[index + 2];
+        break;
+      case 'left':
+        subsequent = cellsArr[index - 2];
+        break;
+      case 'down':
+        subsequent = cellsArr[index + (this.state.cols * 2)];
+        break;
+      case 'up':
+        subsequent = cellsArr[index - (this.state.cols * 2)];
+        break;
+      default: subsequent = false;
+    }
+
+    return (!subsequent || subsequent.value === 0) ? false : subsequent;
+  }
 
   /*
   *  Utils
@@ -211,6 +214,6 @@ class Grid extends React.Component {
 }
 
 ReactDOM.render(
-  <Grid rows={20} cols={20} />,
+  <Grid rows={50} cols={50} />,
   document.getElementById('root')
 );
