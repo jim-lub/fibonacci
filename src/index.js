@@ -69,7 +69,7 @@ class Grid extends React.Component {
   incrementRowAndColumn({row, col}) {
     const cellsArr = [...this.state.cells];
 
-    const cellsToIncrement = this.removeDuplicatesFromArray([...this.getIndexFromRow(row), ...this.getIndexFromColumn(col)]);
+    const cellsToIncrement = this.removeDuplicatesFromArray([...this.getIndexesFromRow(row), ...this.getIndexesFromColumn(col)]);
 
     cellsToIncrement.forEach(cell => {
       cellsArr[cell.index].value = ++cell.value;
@@ -80,11 +80,11 @@ class Grid extends React.Component {
     this.setState({cells: cellsArr});
   }
 
-  getIndexFromRow(row) {
+  getIndexesFromRow(row) {
     return this.state.cells.filter(cell => cell.row === row);
   }
 
-  getIndexFromColumn(col) {
+  getIndexesFromColumn(col) {
     return this.state.cells.filter(cell => cell.col === col);
   }
 
@@ -97,17 +97,17 @@ class Grid extends React.Component {
 
     this.lastActiveCells.forEach(cur => {
 
-      let horizontal = [...this.step('right', cur.index, cellsArr),
-                        ...this.step('left', cur.index, cellsArr)];
+      let hor = [...this.step('right', cur.index, cellsArr),
+                 ...this.step('left', cur.index, cellsArr)];
 
-      let vertical = [...this.step('down', cur.index, cellsArr),
-                        ...this.step('up', cur.index, cellsArr)];
+      let ver = [...this.step('down', cur.index, cellsArr),
+                 ...this.step('up', cur.index, cellsArr)];
 
-      vertical = this.removeDuplicatesFromArray(vertical);
-      horizontal = this.removeDuplicatesFromArray(horizontal);
+      ver = this.removeDuplicatesFromArray(ver);
+      hor = this.removeDuplicatesFromArray(hor);
 
-      if (horizontal.length >= 5) completedSequences = [...completedSequences, ...horizontal];
-      if (vertical.length >= 5) completedSequences = [...completedSequences, ...vertical];
+      if (hor.length >= 5) completedSequences = [...completedSequences, ...hor];
+      if (ver.length >= 5) completedSequences = [...completedSequences, ...ver];
     });
 
     this.removeDuplicatesFromArray(completedSequences)
@@ -119,67 +119,54 @@ class Grid extends React.Component {
         });
   }
 
-  step(dir, index, cellsArr) {
-    let dirModifier = (dir === 'right' || dir === 'down') ? 1 : -1;
+  step(direction, index, cellsArr) {
+    const directionModifier = (direction === 'right' || direction === 'down') ? 1 : -1;
 
-    let cur = cellsArr[index];
-    let next = this.getNextCell(dir, index, cellsArr);
-    let subsequent = this.getSubsequentCell(dir, index, cellsArr);
+    const current = cellsArr[index];
+    const {next, subsequent} = this.getNextCells(direction, index, cellsArr);
 
-    if (!cur || !next || !subsequent) return [...[]];
+    if (!current || !next || !subsequent) return [...[]];
 
-    if (cur.value + (next.value * dirModifier) === subsequent.value) {
-      return [
-        cur.index, next.index, subsequent.index,
-        ...this.step(dir, next.index, cellsArr)
-      ]
+    if (current.value + (next.value * directionModifier) === subsequent.value) {
+      return [current.index,
+              next.index,
+              subsequent.index,
+              ...this.step(direction, next.index, cellsArr)];
     }
 
     return [...[]]
   }
 
-  getNextCell(dir, index, cellsArr) {
-    let next;
+  getNextCells(direction, index, cellsArr) {
+    let next, subsequent;
 
-    switch (dir) {
+    switch (direction) {
       case 'right':
         next = cellsArr[index + 1];
-        break;
-      case 'left':
-        next = cellsArr[index - 1];
-        break;
-      case 'down':
-        next = cellsArr[index + this.state.cols];
-        break;
-      case 'up':
-        next = cellsArr[index - this.state.cols];
-        break;
-      default: next = false;
-    }
-
-    return (!next || next.value === 0) ? false : next;
-  }
-
-  getSubsequentCell(dir, index, cellsArr) {
-    let subsequent;
-
-    switch (dir) {
-      case 'right':
         subsequent = cellsArr[index + 2];
         break;
       case 'left':
+        next = cellsArr[index - 1];
         subsequent = cellsArr[index - 2];
         break;
       case 'down':
+        next = cellsArr[index + this.state.cols];
         subsequent = cellsArr[index + (this.state.cols * 2)];
         break;
       case 'up':
+        next = cellsArr[index - this.state.cols];
         subsequent = cellsArr[index - (this.state.cols * 2)];
         break;
-      default: subsequent = false;
+      default:
+        next = false;
+        subsequent = false;
     }
 
-    return (!subsequent || subsequent.value === 0) ? false : subsequent;
+    return {
+      next: (!next || next.value === 0) ? false : next,
+      subsequent: (!subsequent || subsequent.value === 0) ? false : subsequent
+    }
+
   }
 
   /*
