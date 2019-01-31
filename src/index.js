@@ -127,6 +127,8 @@ class Grid extends React.Component {
 
     if (!current || !next || !subsequent) return [...[]];
 
+    if(this.isNotOnSameRow(current, next, subsequent) && this.isNotInSameColumn(current, next ,subsequent)) return [...[]];
+
     if (current.value + (next.value * directionModifier) === subsequent.value) {
       return [current.index,
               next.index,
@@ -167,6 +169,14 @@ class Grid extends React.Component {
       subsequent: (!subsequent || subsequent.value === 0) ? false : subsequent
     }
 
+  }
+
+  isNotOnSameRow(current, next, subsequent) {
+    return (current.row !== next.row || current.row !== subsequent.row);
+  }
+
+  isNotInSameColumn(current, next, subsequent) {
+    return (current.col !== next.col || current.col !== subsequent.col);
   }
 
   /*
