@@ -32,10 +32,6 @@ html, body {
   border-radius: 0.5vh;
   background-color: #4f6272;
   color: #bac1b8;
-
-  -webkit-transition: background-color 1000ms linear;
-  -ms-transition: background-color 1000ms linear;
-  transition: background-color 1000ms linear;
 }
 
 .cell:hover {
@@ -46,11 +42,61 @@ html, body {
   background-color: #f9cb40;
 }
 
-.cell-activated {
-  background-color: #f9cb40;
-  color: #363537;
+.cell:disabled{
+  background-color: #36434f;
 }
 
-.cell-reset {
-  background-color: #bced09;
+.cell:disabled:hover{
+  background-color: #36434f;
+  border: 1px solid black;
 }
+
+.active{
+  animation: animation-active 2s;
+  animation-timing-function: linear;
+}
+
+  @keyframes animation-active {
+    from {
+    }
+
+    50% {
+      background-color: #f9cb40;
+      color: #36434f;
+    }
+
+    to {
+      background-color: #4f6272;
+      color: #bac1b8;
+    }
+  }
+
+.reset{
+  animation: animation-reset 4s;
+  animation-timing-function: ease-in-out;
+}
+
+  @keyframes animation-reset {
+    from {
+    }
+
+    25% {
+      background-color: #bced09;
+    }
+
+    50% {
+      background-color: #6c8900;
+    }
+
+    75% {
+      background-color: #bced09;
+    }
+
+    to {
+      background-color: #4f6272;
+    }
+  }
+
+  .disabled{
+    background-color: #36434f;
+  }

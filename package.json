@@ -1,10 +1,11 @@
 {
-  "name": "fibonacci",
+  "name": "hooks",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "react": "^16.7.0",
-    "react-dom": "^16.7.0",
+    "react": "^16.7.0-alpha.2",
+    "react-dom": "^16.7.0-alpha.2",
+    "react-hot-loader": "^4.6.5",
     "react-scripts": "2.1.3"
   },
   "scripts": {
