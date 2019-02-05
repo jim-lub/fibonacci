@@ -1,16 +1,21 @@
-const getCompletedSequences = (defaults, lastActive, cellsArr) => {
-  const cells = [...cellsArr];
+import {DEFAULTS} from './index.js';
+
+const getCompletedSequences = (lastActive, cellsArr) => {
+  const defaults = DEFAULTS;
   let completedSequences = [];
 
   lastActive.forEach(cell => {
-    let hor = [...step('right', cell.index, cells),
-               ...step('left', cell.index, cells)];
+    let hor = removeDuplicatesFromArray([
+                ...step('right', cell.index, cellsArr),
+                ...center('horizontal', cell.index, cellsArr),
+                ...step('left', cell.index, cellsArr)
+              ]);
 
-    let ver = [...step('down', cell.index, cells),
-               ...step('up', cell.index, cells)];
-
-    ver = removeDuplicatesFromArray(ver);
-    hor = removeDuplicatesFromArray(hor);
+    let ver = removeDuplicatesFromArray([
+                ...step('down', cell.index, cellsArr),
+                ...center('vertical', cell.index, cellsArr),
+                ...step('up', cell.index, cellsArr)
+              ]);
 
     if (hor.length >= defaults.threshold) completedSequences = [...completedSequences, ...hor];
     if (ver.length >= defaults.threshold) completedSequences = [...completedSequences, ...ver];
@@ -19,52 +24,78 @@ const getCompletedSequences = (defaults, lastActive, cellsArr) => {
   return completedSequences;
 }
 
-const step = (direction, index, cells) => {
+const center = (direction, index, cellsArr) => {
+  const current = cellsArr[index];
+  const {previous, next} = getAdjacentCells(direction, index, cellsArr);
+
+  if (!previous || !current || !next) return [...[]];
+
+  if(!areInSameRow(current, next, previous) && !areInSameColumn(current, next, previous)) return [...[]];
+
+  if (previous.value + current.value === next.value) {
+    return [current.index,
+            next.index,
+            previous.index];
+  }
+
+  return [...[]];
+}
+
+const step = (direction, index, cellsArr) => {
   const directionModifier = (direction === 'right' || direction === 'down') ? 1 : -1;
 
-  const current = cells[index];
-  const {next, subsequent} = getNextCells(direction, index, cells);
+  let current = cellsArr[index];
+  let {next, subsequent} = getAdjacentCells(direction, index, cellsArr);
 
   if (!current || !next || !subsequent) return [...[]];
+
   if(!areInSameRow(current, next, subsequent) && !areInSameColumn(current, next, subsequent)) return [...[]];
 
   if (current.value + (next.value * directionModifier) === subsequent.value) {
     return [current.index,
             next.index,
             subsequent.index,
-            ...step(direction, next.index, cells)];
+            ...step(direction, next.index, cellsArr)];
   }
 
   return [...[]];
 }
 
-const getNextCells = (direction, index, cellsArr) => {
-  let next, subsequent;
-  let columns = 50;
+const getAdjacentCells = (direction, index, cellsArr) => {
+  const defaults = DEFAULTS;
+  let previous, next, subsequent;
 
   switch (direction) {
     case 'right':
+    case 'horizontal':
+      previous = cellsArr[index - 1];
       next = cellsArr[index + 1];
       subsequent = cellsArr[index + 2];
       break;
     case 'left':
+      previous = cellsArr[index + 1];
       next = cellsArr[index - 1];
       subsequent = cellsArr[index - 2];
       break;
     case 'down':
-      next = cellsArr[index + columns];
-      subsequent = cellsArr[index + (columns * 2)];
+    case 'vertical':
+      previous = cellsArr[index - defaults.cols];
+      next = cellsArr[index + defaults.cols];
+      subsequent = cellsArr[index + (defaults.cols * 2)];
       break;
     case 'up':
-      next = cellsArr[index - columns];
-      subsequent = cellsArr[index - (columns * 2)];
+      previous = cellsArr[index + defaults.cols];
+      next = cellsArr[index - defaults.cols];
+      subsequent = cellsArr[index - (defaults.cols * 2)];
       break;
     default:
+      previous = false;
       next = false;
       subsequent = false;
   }
 
   return {
+    previous: (!previous || previous.value === 0) ? false : previous,
     next: (!next || next.value === 0) ? false : next,
     subsequent: (!subsequent || subsequent.value === 0) ? false : subsequent
   }

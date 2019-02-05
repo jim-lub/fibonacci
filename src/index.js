@@ -1,23 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { useState, useEffect } from 'react';
+import {useState, useEffect} from 'react';
 import {getCompletedSequences} from './fibonacci.js'
 import {animations} from './animations.js'
 import './index.css';
 
-const Grid = (props) => {
-  const [defaults, setDefaults] = useState({
-    rows: props.rows,
-    cols: props.cols,
-    threshold: props.threshold
-  });
-  const [cellsArr, setCellsArr] = useState(() => buildCellsArr(defaults));
+const DEFAULTS = {
+  rows: 50,
+  cols: 50,
+  threshold: 5
+}
+
+const Grid = () => {
+  const [cellsArr, setCellsArr] = useState(() => buildCellsArr());
   const [lastActive, setLastActive] = useState([]);
 
   const handleClick = (index) => incrementCells(index, cellsArr, setCellsArr, setLastActive);
 
   useEffect(() => {
-    const completedSequences = getCompletedSequences(defaults, lastActive, cellsArr);
+    const completedSequences = getCompletedSequences(lastActive, cellsArr);
     if (completedSequences.length > 0) resetCompletedSequences(completedSequences, cellsArr, setLastActive);
   });
 
@@ -27,25 +28,24 @@ const Grid = (props) => {
 }
 
 const Cell = (props, handleClick) => {
-  let isNull = (props.value === null) ? "disabled" : "";
   return (
     <button
-      className={"cell " + isNull}
+      className={"cell"}
       id={"cell-" + props.index}
       key={props.index}
       onClick={() => handleClick(props.index)}
-      disabled={props.disabled}
     >
       {props.value}
     </button>
   )
 };
 
-const buildCellsArr = ({rows, cols}) => {
+const buildCellsArr = () => {
+  const defaults = DEFAULTS;
   let cells = [], i = 0;
 
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
+  for (let r = 0; r < defaults.rows; r++) {
+    for (let c = 0; c < defaults.cols; c++) {
       cells.push({
         index: i++,
         row: r,
@@ -61,8 +61,10 @@ const buildCellsArr = ({rows, cols}) => {
 const incrementCells = (index, cellsArr, setCellsArr, setLastActive) => {
   const cells = [...cellsArr];
   const cur = cells[index];
-  const cellsToIncrement = removeDuplicatesFromArray([...getCellsInRow(cur.row, cells),
-                                                      ...getCellsInColumn(cur.col, cells)]);
+  const cellsToIncrement = removeDuplicatesFromArray([
+                              ...getCellsInRow(cur.row, cells),
+                              ...getCellsInColumn(cur.col, cells)
+                            ]);
 
   cellsToIncrement.forEach(cur => {
     cells[cur.index].value = ++cur.value;
@@ -89,6 +91,8 @@ const getCellsInColumn = (col, cells) => cells.filter(cell => cell.col === col);
 const removeDuplicatesFromArray = (arr) => [...new Set(arr)];
 
 ReactDOM.render(
-  <Grid rows={50} cols={50} threshold={5}/>,
+  <Grid />,
   document.getElementById('root')
 );
+
+export {DEFAULTS}
