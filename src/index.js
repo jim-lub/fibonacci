@@ -23,7 +23,7 @@ const Grid = () => {
   });
 
   /* render */
-  const cellsToRender = cellsArr.map(cur => Cell(cur, handleClick));
+  const cellsToRender = cellsArr.map(props => Cell(props, handleClick));
   return <div className="grid">{cellsToRender}</div>
 }
 
@@ -66,9 +66,9 @@ const incrementCells = (index, cellsArr, setCellsArr, setLastActive) => {
                               ...getCellsInColumn(cur.col, cells)
                             ]);
 
-  cellsToIncrement.forEach(cur => {
-    cells[cur.index].value = ++cur.value;
-    animations().active(`cell-${cur.index}`);
+  cellsToIncrement.forEach(cell => {
+    cells[cell.index].value = ++cell.value;
+    animations().active(`cell-${cell.index}`);
   });
 
   setCellsArr(cells);

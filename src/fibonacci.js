@@ -28,9 +28,9 @@ const center = (direction, index, cellsArr) => {
   const current = cellsArr[index];
   const {previous, next} = getAdjacentCells(direction, index, cellsArr);
 
-  if (!previous || !current || !next) return [...[]];
+  if (!previous || !current || !next) return [];
 
-  if(!areInSameRow(current, next, previous) && !areInSameColumn(current, next, previous)) return [...[]];
+  if(!areInSameRow(current, next, previous) && !areInSameColumn(current, next, previous)) return [];
 
   if (previous.value + current.value === next.value) {
     return [current.index,
@@ -38,7 +38,7 @@ const center = (direction, index, cellsArr) => {
             previous.index];
   }
 
-  return [...[]];
+  return [];
 }
 
 const step = (direction, index, cellsArr) => {
@@ -47,9 +47,9 @@ const step = (direction, index, cellsArr) => {
   let current = cellsArr[index];
   let {next, subsequent} = getAdjacentCells(direction, index, cellsArr);
 
-  if (!current || !next || !subsequent) return [...[]];
+  if (!current || !next || !subsequent) return [];
 
-  if(!areInSameRow(current, next, subsequent) && !areInSameColumn(current, next, subsequent)) return [...[]];
+  if(!areInSameRow(current, next, subsequent) && !areInSameColumn(current, next, subsequent)) return [];
 
   if (current.value + (next.value * directionModifier) === subsequent.value) {
     return [current.index,
@@ -58,7 +58,7 @@ const step = (direction, index, cellsArr) => {
             ...step(direction, next.index, cellsArr)];
   }
 
-  return [...[]];
+  return [];
 }
 
 const getAdjacentCells = (direction, index, cellsArr) => {
@@ -73,7 +73,6 @@ const getAdjacentCells = (direction, index, cellsArr) => {
       subsequent = cellsArr[index + 2];
       break;
     case 'left':
-      previous = cellsArr[index + 1];
       next = cellsArr[index - 1];
       subsequent = cellsArr[index - 2];
       break;
@@ -84,7 +83,6 @@ const getAdjacentCells = (direction, index, cellsArr) => {
       subsequent = cellsArr[index + (defaults.cols * 2)];
       break;
     case 'up':
-      previous = cellsArr[index + defaults.cols];
       next = cellsArr[index - defaults.cols];
       subsequent = cellsArr[index - (defaults.cols * 2)];
       break;
@@ -101,8 +99,8 @@ const getAdjacentCells = (direction, index, cellsArr) => {
   }
 }
 
-const areInSameRow = (current, next, subsequent) => (current.row === next.row && current.row === subsequent.row);
-const areInSameColumn = (current, next, subsequent) => (current.col === next.col && current.col === subsequent.col);
+const areInSameRow = (a, b, c) => (a.row === b.row && a.row === c.row);
+const areInSameColumn = (a, b, c) => (a.col === b.col && a.col === c.col);
 const removeDuplicatesFromArray = (arr) => [...new Set(arr)];
 
 export {getCompletedSequences};
