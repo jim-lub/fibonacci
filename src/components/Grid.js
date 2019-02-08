@@ -15,7 +15,7 @@ export const Grid = (props) => {
   const [lastActive, setLastActive] = useState([]);
 
   const handleCellClick = (index) => {
-    const incrementedCells = getIncremendtedCells(index, cellsArr);
+    const incrementedCells = getCellsArrIncludingIncrementedCells(index, cellsArr);
     const lastActiveCells = getCellsToIncrement(index, cellsArr);
     setCellsArr(incrementedCells);
     setLastActive(lastActiveCells);

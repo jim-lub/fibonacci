@@ -21,7 +21,7 @@ export const getCellsToIncrement = (index, cellsArr) => {
   return cellsToIncrement;
 };
 
-export const getIncremendtedCells = (index, cellsArr) => {
+export const getCellsArrIncludingIncrementedCells = (index, cellsArr) => {
   const cells = _.cloneDeep(cellsArr);
 
   getCellsToIncrement(index, cells)
